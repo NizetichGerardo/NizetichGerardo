@@ -1,0 +1,1026 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "XENI APP",
+      "description": " REST services for managing your API ecosystem.",
+      "termsOfService": "Some URL",
+      "contact": {
+        "name": "XENI INC",
+        "url": "XENI URL",
+        "email": "apisupport@xeni.com"
+      },
+      "license": {
+        "name": "XENI",
+        "url": "something"
+      },
+      "version": "v1"
+    },
+    "servers": [
+      {
+        "description": "Testing",
+        "url": "xeni endpoints"
+      },
+      {
+        "description": "Production",
+        "url": "xeni endpoints"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Flights",
+        "description": "Group the endpoints related to flights"
+      },
+      {
+        "name": "Bookings",
+        "description": "Group the endpoints related to bookings"
+      }
+    ],
+    "paths": {
+      "/api/flights/airShopping": {
+        "post": {
+          "summary": "Get the flights content with Prices for a given itinerary/Dates",
+          "description": "Shopping request for a certain itinerary, dates, passengerTypesQuantity.",
+          "operationId": "airShoppingRQ",
+          "tags": [
+            "Flights"
+          ],
+          "security": [
+            {
+              "apiKeyAuth": [
+                "Bearer"
+              ]
+            }
+          ],
+          "requestBody": {
+            "description": "The request payload to sent.",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "originDestinationOptions": {
+                      "type": "object",
+                      "required": true,
+                      "$ref": "#/components/schemas/originDestinationOptions"
+                    },
+                    "travelPreferences": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/travelPreferences"
+                    },
+                    "passengerTypesQuantity": {
+                      "type": "array",
+                      "required":true,
+                      "$ref": "#/components/schemas/passengerTypes"
+                    },
+                    "pricingPreferences":{
+                      "type": "object",
+                      "$ref": "#/components/schemas/pricingPreferences"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "description": "message status"
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "error": {
+                              "type": "object",
+                              "$ref": "#/components/schemas/Error"
+                            }
+                          }
+                        }
+                      },
+                      "warnings": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "warning": {
+                              "type": "object",
+                              "$ref": "#/components/schemas/Warnings"
+                            }
+                          }
+                        }
+                      },
+                      "data": {
+                        "type": "object",
+                        "description": "container of shopping success response object.",
+                        "properties": {
+                          "shoppingId": {
+                            "type": "string",
+                            "description": "Unique shopping transaction identifier."
+                          },
+                          "originDestinationOptions": {
+                            "type": "array",
+                            "description": "Dictionary of Flights by componentID.",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "originDestinationId": {
+                                  "type": "string",
+                                  "description": "OriginDestination sequence sector reference.",
+                                  "example": "OD1"
+                                },
+                                "flights": {
+                                  "type": "array",
+                                  "description": "Dictionary of flights for the originDestination sequence.",
+                                  "items": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/flightsInformation"
+                                    }
+                                }
+                              }
+                            }
+                          },
+                          "journeys":{
+                            "type": "array",
+                            "$ref": "#/components/schemas/pricedItineraryOffers"
+                          },
+                          "pricedItinerariesReference":{
+                            "type": "array",
+                            "description": "List of Prices applicable per FareFamily for journeys.",
+                            "$ref": "#/components/schemas/airItineraryPricingInfo"
+                          },
+                          "fareFamilies":{
+                            "type": "array",
+                            "description": "The list of available Fare Families per carrier content.",
+                            "items":{
+                              "type": "object",
+                              "properties": {
+                                "fareFamilyId":{
+                                  "type": "string",
+                                  "description": "The code of the fare family associated to Pricing option.",
+                                  "example":"ECONOMY_LIGHT_09809"
+                                },
+                                "name":{
+                                  "type": "string",
+                                  "description": "Family Fare marketing name.",
+                                  "example":"Economy Light"                               
+                                },
+                                "owner":{
+                                  "type": "string",
+                                  "description": "Carrier code fare family owner.",
+                                  "example":"LAt"                               
+                                },
+                                "FareFamilyInfos":{
+                                  "type": "array",
+                                  "description": "Hold the FareFamily bundle offers",
+                                  "items":{
+                                    "type":"object",
+                                    "description": "Service condition in fare family",
+                                    "properties": {
+                                      "code":{
+                                        "type": "string",
+                                        "description": "Code of bundle service or RFISC",
+                                        "example":"O50"
+                                      },
+                                      "name":{
+                                        "type": "string",
+                                        "description": "Service Name",
+                                        "example":"CHOICE OF STANDARD SEAT"
+                                      },
+                                      "group":{
+                                        "type": "string",
+                                        "description": "Service bundle Name.",
+                                        "example":"SEATS"
+                                      },
+                                      "subgroup":{
+                                        "type": "string",
+                                        "description": "Service bundle subgroup Name.",
+                                        "example":"Premium"
+                                      },
+                                      "RFIC":{
+                                        "type": "string",
+                                        "description": "REASON FOR ISSUANCE CODE.",
+                                        "example":"Group Bundle Code"
+                                      },
+                                      "type":{
+                                        "type":"string",
+                                        "description": "Status of the service in the Bundle.",
+                                        "enum": [
+                                          "included",
+                                          "notOffered",
+                                          "charged"
+                                        ] 
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cheapFlight":{
+                             "type": "object",
+                             "description": "Holds the cheapeast journey in the offered list.",
+                             "properties": {
+                              "journeyReferenceId":{
+                                "type": "array",
+                                "minItems":1,
+                                "example":[
+                                  "LA450LA452_LA450"
+                                ]
+                              }
+                             }
+                          },
+                          "bestFlight":{
+                            "type": "object",
+                            "description": "Holds the Best Option journey in the offered list.",
+                            "properties": {
+                             "journeyReferenceId":{
+                               "type": "array",
+                               "minItems":1,
+                               "example":[
+                                 "LA450LA452_LA450"
+                               ]
+                             }
+                            }
+                          },
+                          "quickFlight":{
+                            "type": "object",
+                            "description": "Holds the Best Option based on Duration time of the journey in the offered list.",
+                            "properties": {
+                             "journeyReferenceId":{
+                               "type": "array",
+                               "minItems":1,
+                               "example":[
+                                 "LA450LA452_LA450"
+                               ]
+                             }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "201": {
+              "description": "Done"
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            },
+            "501": {
+              "description": "501 Server Error"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "originDestinationOptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "minItems": 1,
+            "properties": {
+              "originDestinationId": {
+                "type": "string",
+                "required": [
+                  "true"
+                ],
+                "example": "OD1"
+              },
+              "departureAirport": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3,
+                "description": "3 Chars code of IATA Departure airport",
+                "example": "JFK"
+              },
+              "arrivalAirport": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3,
+                "description": "3 Chars code of IATA Departure airport",
+                "example": "BOS"
+              },
+              "departureDate": {
+                "type": "string",
+                "format": "date",
+                "description": "The departure date of the O&D segment.",
+                "example": "2023-12-20"
+              }
+            }
+          }
+        },
+        "Warnings": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "code of the error."
+            },
+            "message": {
+              "type": "string",
+              "description": "Description of the error."
+            }
+          }
+        },
+        "Error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "code of the error."
+            },
+            "message": {
+              "type": "string",
+              "description": "Description of the error."
+            }
+          }
+        },
+        "travelPreferences": {
+          "type": "object",
+          "properties": {
+            "tripType": {
+              "$ref": "#/components/schemas/tripType"
+            },
+            "carrierPreferences": {
+              "type": "array",
+              "$ref": "#/components/schemas/carrierPreferences"
+            },
+            "maxStopsQuantity": {
+              "type": "string",
+              "$ref": "#/components/schemas/maxStopsQuantity"
+            },
+            "cabinPreferences": {
+              "type": "array",
+              "$ref": "#/components/schemas/cabinPreference"
+            }
+          }
+        },
+        "pricingPreferences":{
+          "type": "object",
+          "description": "Preferred pricing options",
+          "properties": {
+            "fareType":{
+              "type": "string",
+              "description": "The type of the price to process the shopping.",
+              "example":"public",
+              "enum": [
+                "publicFares",
+                "BulkFare",
+                "corporate",
+                "InclusiveTour"
+              ]
+            },
+            "fareDiscounts":{
+              "type": "object",
+              "description": "Enter the data for discount programs",
+              "properties": {
+                "bulkFare":{
+                  "type": "string",
+                  "description": "Code to add for Bulk Fares pricing - Type Private",
+                  "example":"BT12341"
+                  },
+                  "InclusiveTour":{
+                    "type": "string",
+                    "description": "Code to add inclusive tour pricing - type Private",
+                    "example":"IT125844"
+                  },
+                  "corporateAccountCode":{
+                    "type": "object",
+                    "description": "Enter the Corporate agreement",
+                    "properties": {
+                      "carrierCode":{
+                        "type": "string",
+                        "description": "Carrier that validates the discount code.",
+                        "example":"LA"
+                      },
+                      "discountCode":{
+                        "type": "string",
+                        "description": "Account code to apply in quotation.",
+                        "example":"AD10"
+                      }
+                    }
+                  }
+                }
+            }
+            }
+          },
+        "carrierPreferences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "originDestinationRefId": {
+                "type": "string",
+                "required": [
+                  "true"
+                ],
+                "description": "Reference to the OriginDestination Object"
+              },
+              "preferredCarrierList": {
+                "type": "array",
+                "minItems": 1,
+                "example": [
+                  "AA",
+                  "UA",
+                  "B6"
+                ],
+                "description": "Preference carriers for a certain OriginDestination"
+              },
+              "excludeCarriers": {
+                "type": "array",
+                "example": [
+                  "F9",
+                  "CO",
+                  "DL"
+                ],
+                "description": "Carriers to exclude for a certain originDestination object"
+              }
+            }
+          }
+        },
+        "maxStopsQuantity": {
+          "enum": [
+            "Direct",
+            "OneStop",
+            "All"
+          ],
+          "type": "string"
+        },
+        "tripType": {
+          "enum": [
+            "Default",
+            "OneWay",
+            "Return",
+            "Circle",
+            "OpenJaw",
+            "Other"
+          ],
+          "type": "string"
+        },
+        "cabinPreference": {
+          "type": "string",
+          "enum": [
+            "First",
+            "Busines",
+            "Economy Premium",
+            "Economy"
+          ]
+        },
+        "passengerTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "description": "Quantity of passenger types",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "ADT",
+                  "CHD",
+                  "INF"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "required": [
+                  "true"
+                ]
+              }
+            }
+          }
+        },
+        "OB.stops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "airportCode": {
+                "type": "string",
+                "description": "Airport code "
+              },
+              "arrivalDateTime": {
+                "type": "string",
+                "format": "dateTime",
+                "description": "Local date and time of the flight arrival.",
+                "example": "2024-01-10T09:00:00"
+              },
+              "stopDuration": {
+                "type": "string",
+                "description": "Estimated time in the stop.HH:MM:SS",
+                "example": "00:45:00"
+              }
+            }
+          }
+        },
+        "OB.marketingCarrierInformation": {
+          "type": "object",
+          "description": "Hold the marketing carrier information.",
+          "properties": {
+            "marketingFlightId": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": [
+                  "990",
+                  "991"
+                ]
+              }
+            },
+            "marketingCarrierName": {
+              "type": "string",
+              "description": "Carrier Marketing Name,",
+              "example": "American Airlines"
+            }
+          }
+        },
+        "OB.operatingCarrierInformation": {
+          "type": "object",
+          "description": "Hold the operating carrier information.",
+          "properties": {
+            "operatingFlightId": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Flight Number",
+                "example": [
+                  "990",
+                  "991"
+                ]
+              }
+            },
+            "operatingCarrierCode": {
+              "type": "string",
+              "description": "Carrier code of the operating airline.",
+              "example": "CO"
+            },
+            "operatingCarrierName": {
+              "type": "string",
+              "description": "Operating Carrier Marketing Name,",
+              "example": "American Airlines"
+            },
+            "operatingCarrierLogo": {
+              "type": "string",
+              "format": "URL",
+              "description": "URL of operating carrier logo image."
+            },
+            "operatingCarrierRBD": {
+              "type": "string",
+              "description": "The RBD for the operating carrier.",
+              "example": "B"
+            }
+          }
+        },
+        "flightsInformation": {
+          "type": "object",
+          "description": "Dictionary of Flights for a certain O&D.",
+          "properties": {
+            "flightId": {
+              "type": "string",
+              "description": "Unique flight identification number."
+            },
+            "airlineName": {
+              "type": "string",
+              "description": "Airline Marketing Name."
+            },
+            "airlineLogo": {
+              "type": "string",
+              "format": "URL",
+              "description": "Logo image of the Marketing Airline."
+            },
+            "departureAirport": {
+              "type": "string",
+              "description": "Departure airport Code.",
+              "example": "JFK"
+            },
+            "departureAirportName": {
+              "type": "string",
+              "description": "Name of the departure airport."
+            },
+            "departureDateTime": {
+              "type": "string",
+              "format": "dateTime",
+              "description": "Local date and time of flight departure point of the flight.",
+              "example": "2024-01-18T22:00:00"
+            },
+            "arrivalAirport": {
+              "type": "string",
+              "description": "Arrival airport Code.",
+              "example": "BOS"
+            },
+            "arrivalAirportName": {
+              "type": "string",
+              "description": "Name of the arrival airport of the segment."
+            },
+            "arrivalDateTime": {
+              "type": "string",
+              "format": "dateTime",
+              "description": "Local date and time of the flight arrival.",
+              "example": "2024-01-10T09:00:00"
+            },
+            "flightDuration": {
+              "type": "string",
+              "description": "Flight Time estimated. HH:MM:SS",
+              "example": "10:23:00"
+            },
+            "stops": {
+              "type": "array",
+              "$ref": "#/components/schemas/OB.stops"
+            },
+            "marketingCarrierInformation": {
+              "type": "object",
+              "$ref": "#/components/schemas/OB.marketingCarrierInformation"
+            },
+            "operatingCarrierInformation": {
+              "type": "object",
+              "$ref": "#/components/schemas/OB.operatingCarrierInformation"
+            },
+            "cabin": {
+              "type": "string",
+              "description": "Marketing carrier name."
+            },
+            "aircraft": {
+              "type": "string",
+              "description": "Aircraft name."
+            }
+          }
+        },
+        "pricedItineraryOffers":{
+            "type": "array",
+            "description": "Itinerary combination offers.",
+            "items":{
+                "type": "object",
+                "description": "Hold the offer combination priced reference.",
+                "properties": {
+                    "journeyId":{
+                      "type": "string",
+                      "description": "Flight combination identification.",
+                      "example":"LA450LA452_LA450"
+                    },
+                    "PriceReferenceId":{
+                        "type": "string",
+                        "description": "Reference Id to priced itinerary reference for price details.",
+                        "example":"432f52bf-9df8-4e5c-97bb-7358e273b3cf"
+                    },
+                    "flights":{
+                        "type": "array",
+                        "description": "List of combination flights for the referenced priced.",
+                        "items":{
+                            "type": "object",
+                            "properties": {
+                              "sectorSequence":{
+                                "type": "string",
+                                "description": "Sector sequence order",
+                                "example":"OD1"
+                              },
+                              "flightIds":{
+                                "type": "array",
+                                "minItems": 1,
+                                "example":["LA450","LA452"]
+                              }
+                            }
+                        }
+                    },
+                    "fareFamily":{
+                        "type": "string",
+                        "description": "Name of the applicable fareFamily for the priced offer.",
+                        "example":"BASIC"
+                    },
+                    "FareFamilyReferenceId":{
+                        "type": "string",
+                        "description": "Reference Id of FamilyFares branded.",
+                        "example":"BASIC-QP-219907"
+                    },
+                    "bookingInstructions":{
+                        "type": "array",
+                        "description": "Instruction to process the booking of the option.",
+                        "items":{
+                            "type": "object",
+                            "properties": {
+                                "originDestinationId":{
+                                    "type":"string",
+                                    "default":"Origin destination reference association.",
+                                    "example":"OD1"
+                                },
+                                "flightId":{
+                                    "type": "string",
+                                    "description": "Flight number applicable for the offer.",
+                                    "example":"AA901"
+                                },
+                                "RBD":{
+                                    "type": "string",
+                                    "description": "Booking Class",
+                                    "example":"M"
+                                },
+                                "posting":{
+                                    "type": "integer",
+                                    "description": "Space available in the RBD.",
+                                    "example":9
+                                }
+                            
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "airItineraryPricingInfo":{
+            "type": "object",
+            "description": "Pricing Details of each offer",
+            "properties": {
+                "totalPrice":{
+                    "type": "string",
+                    "description": "The total price of the Air itinerary service",
+                    "example":"244.80"
+                },
+                "basePrice":{
+                    "type": "string",
+                    "description": "The fare base amount.",
+                    "example":"110"
+                },
+                "pricePerOrigindestination":{
+                    "type": "array",
+                    "description": "Average display price per originDestination component.",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "originDestinationId":{
+                                "type": "string",
+                                "description": "Price per reference O&D.",
+                                "example":"OD1"
+                            },
+                            "averageBasePrice":{
+                                "type": "string",
+                                "description": "Avergate BasePrice per component.",
+                                "example":"55"
+                            },
+                            "averageTaxPrice":{
+                                "type": "string",
+                                "description": "Average Tax price per component.",
+                                "example":"67.40"
+                            },
+                            "averageMarkupPrice":{
+                                "type": "string",
+                                "description": "Average Markup price per component.",
+                                "example":"7.50"
+                            }
+                            }
+                        }
+                },
+                "tax":{
+                  "type": "string",
+                  "description": "The total taxes for the itinerary",
+                  "example":"134.80"
+                },
+                "markup":{
+                  "type": "array",
+                  "description": "The Agency Markup in XENI App",
+                  "items":{
+                    "type": "object",
+                    "properties": {
+                      "type":{
+                        "type": "string",
+                        "enum": [
+                          "percentage",
+                          "flatAmount"
+                        ]
+                      },
+                      "rate":{
+                        "type": "number",
+                        "description": "The applicable rate of markup",
+                        "example":10
+                        
+                      }
+                    }
+                  }
+                },
+                "serviceFee":{
+                  "type": "string",
+                  "description": "The amount of service Fee charge for Seller",
+                  "example":"10.00"
+                },
+                "discounts":{
+                  "type": "array",
+                  "items":{
+                    "type": "object",
+                    "properties": {
+                      "type":{
+                        "type": "string",
+                        "description":"Type of discount applied",
+                        "enum": [
+                          "Corporate",
+                          "BulkFare",
+                          "InclusiveTour"
+                        ]
+                      },
+                      "rate":{
+                        "type": "number",
+                        "description": "The applicable rate of markup",
+                        "example":10
+                        
+                      },
+                      "code":{
+                        "type": "string",
+                        "description": "The applicable Code for the discount"
+                      }
+                    }
+                  }
+                },
+                "currencyCode":{
+                  "type": "string",
+                  "description": "The Display currency code. ISO-4217"
+                },
+                "baggages":{
+                  "type": "array",
+                  "description": "The baggage allowance Supported",
+                  "items":{
+                    "type": "object",
+                    "description": "The baggage allowance per flight",
+                    "properties": {
+                      "originDestinationRefId":{
+                        "type": "string",
+                        "description": "O&D association",
+                        "example":"OD1"
+                      },
+                      "flightId":{
+                        "type": "string",
+                        "description": "Flight segment association",
+                        "example":"LA450"
+                      },
+                      "FreeQuantity":{
+                        "type": "number",
+                        "description": "Quantity of free baggage",
+                        "example":1
+                      },
+                      "passengerTypeCode":{
+                        "type": "string",
+                        "description": "The IATA passegner Type Code applicable."
+                      },
+                      "bagAllowanceType":{
+                        "type": "string",
+                        "description": "Type of baggage allowance supported.",
+                        "example":"piece"
+                      },
+                      "BagAllowanceUnit":{
+                        "type": "string",
+                        "description": "Unit of measure",
+                        "example":"K"
+                      }
+                    }
+                    
+                  }
+                },
+                "FareBasisCodes":{
+                  "type": "array",
+                  "items":{
+                    "type": "object",
+                    "description": "Each object associate the farebasis code with O&D and Flight Segment",
+                    "properties": {
+                      "originDestinationRefId":{
+                        "type": "string",
+                        "description": "association with O&D ref ID",
+                        "example":"OD1"
+                      },
+                      "flightId":{
+                        "type": "string",
+                        "description": "Asssociation with flight Segment in the O&D",
+                        "example":"LA450"
+                      },
+                      "fareBasisCode":{
+                        "type":"string",
+                        "description": "The applicable fare basis code for the specific segment."
+                      }                    
+                    }
+                  }
+                },
+                "ptcBreakdown":{
+                  "type": "array",
+                  "description": "Pricing breakdown by passenger type code.",
+                  "items":{
+                    "type": "object",
+                    "properties": {
+                      "PTC":{
+                        "type": "array",
+                        "description": "Passenger Type Code",
+                        "example":"ADT"
+                      },
+                      "totalPrice":{
+                        "type": "object",
+                        "properties": {
+                          "currencyCode":{
+                            "type": "string",
+                            "description": "The Display currency code. ISO-4217"
+                          },
+                          "amount":{
+                            "type":"number",
+                            "description": "The total price for PTC",
+                            "example":120.00
+                          }
+                        }
+                      },
+                      "baseFare":{
+                        "type": "object",
+                        "properties": {
+                          "currencyCode":{
+                            "type": "string",
+                            "description": "The Display currency code. ISO-4217"
+                          },
+                          "amount":{
+                            "type":"number",
+                            "description": "The base fare priced for PTC",
+                            "example":120.00
+                          }
+                        }
+                      },
+                      "taxes":{
+                        "type": "array",
+                        "description": "Taxes Breakdowm",
+                        "items":{
+                          "type": "object",
+                          "properties": {
+                            "taxCode":{
+                              "type": "string",
+                              "description": "Code of tax applied in the pricing option.",
+                              "example":"YQ"
+                            },
+                            "currencyCode":{
+                              "type": "string",
+                              "description": "The Display currency code. ISO-4217"
+                            },
+                            "amount":{
+                              "type":"number",
+                              "description": "The Tax price for PTC",
+                              "example":120.00
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "fareConstruction":{
+                  "type": "string",
+                  "description": "The fare construction from Pricing System",
+                  "example":"EZE Q20 SCL 120 EZE Q20 120 END NUC 280"
+                },
+                "avgPricePerOriginDestination":{
+                  "type": "array",
+                  "description": "From the total of an itinerary, calculate the price to display for each O&D.",
+                  "items":{
+                    "type": "object",
+                    "properties": {
+                      "originDestinationRefId":{},
+                      "averageBasePrice":{},
+                      "averageTaxPrice":{}
+                    }
+                  }
+                },
+                "fareType":{
+                  "type": "string",
+                  "description": "The type of fares used for the pricing option.",
+                  "example":"Published"
+                },
+                "Provider":{
+                  "type": "string",
+                  "description": "System that provide the prices",
+                  "example":"Sabre"
+                },
+                "officeId":{
+                  "type": "string",
+                  "description": "The office identificator used for the pricing process."
+                },
+                "vendor":{
+                  "type": "string",
+                  "description": "Vendor name that provide the pricing source.",
+                  "example":"access fare"
+                  
+                }
+            }
+        }
+      },
+      "securitySchemes": {
+        "apiKeyAuth": {
+          "type": "apiKey",
+          "name": "TokenId",
+          "in": "header",
+          "description": "Bearer TokenId"
+        }
+      }
+  }
+}
+  
