@@ -459,7 +459,8 @@
     "/offer-managment/airSeatMap": {
       "post":{
         "summary": "Get flights seat map",
-        "description": "Flight Seat map",
+        "description": "The Flight Seat map display by itinerary or Flight Segment",
+        "operationId": "SeatMap",
         "tags": [
           "order-management"
         ],
@@ -579,7 +580,7 @@
     "/order-managment/create": {
       "post": {
         "summary": "Create order endpoint.",
-        "description": "Create booking request.",
+        "description": "Allow user to Create booking request.",
         "operationId": "createOrder.",
         "tags": [
           "order-management"
@@ -738,7 +739,7 @@
     "/order-managment/view": {
       "post": {
         "summary": "view order endpoint.",
-        "description": "Retrieve order to view.",
+        "description": "Allow user to Retrieve order to view.",
         "operationId": "orderView.",
         "tags": [
           "order-management"
